@@ -42,7 +42,7 @@ A Python program that selects the best-fit ideal functions for noisy training da
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-username/python-assignment.git
+git clone https://github.com/your-username/ideal-function-selector.git
 cd python-assignment
 
 # 2. Create a virtual environment (optional but recommended)
@@ -127,15 +127,3 @@ where `max_training_deviation(f)` is the largest absolute residual between the t
 
 ---
 
-## Git workflow
-
-```bash
-# clone the develop branch
-git clone --branch develop --single-branch https://github.com/your-team/repo.git
-
-# after making changes
-git add .
-git commit -m "feat: describe your change here"
-git push origin develop
-# then open a Pull Request for review
-```
