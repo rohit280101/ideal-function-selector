@@ -13,11 +13,12 @@ class DatabaseManager:
         try:
             df.to_sql(table_name, con=self.engine, if_exists=if_exists, index=False)
         except Exception as e:
-            raise DataLoadError(f"Failed writing '{table_name}': {e}") from e
+            raise DataLoadError(f"Failed to write table '{table_name}': {e}") from e
 
     def read(self, table_name):
         return pd.read_sql_table(table_name, con=self.engine)
 
+    # convenience wrappers so callers don't need to know table names
     def save_training(self, df):
         self.write(df, "training_data")
 
