@@ -2,9 +2,10 @@ import os
 import pandas as pd
 from bokeh.io import output_file, save
 from bokeh.layouts import gridplot
-from bokeh.models import HoverTool
+from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.plotting import figure
 
+# matplotlib's default category10 palette — looks decent enough
 COLORS = {"y1": "#1f77b4", "y2": "#ff7f0e", "y3": "#2ca02c", "y4": "#d62728"}
 
 
@@ -54,7 +55,7 @@ class Visualizer:
             tools="pan,wheel_zoom,box_zoom,reset,hover,save",
         )
 
-        # background ideal function lines
+        # draw the four selected ideal functions as faint background lines
         for tcol, icol in self.best_fits.items():
             p.line(
                 self.ideal["x"], self.ideal[icol],
@@ -62,14 +63,13 @@ class Visualizer:
                 legend_label=f"{icol} (←{tcol})",
             )
 
-        # matched points
         matched = self.mapping[self.mapping["ideal_func"] != ""].copy()
         if not matched.empty:
             color_map = {v: COLORS[k] for k, v in self.best_fits.items()}
             matched["color"] = matched["ideal_func"].map(color_map).fillna("grey")
             max_dev = matched["delta_y"].max() or 1.0
+            # scale point size by deviation so outliers stand out visually
             matched["pt_size"] = 6 + (matched["delta_y"] / max_dev) * 10
-            from bokeh.models import ColumnDataSource
             p.scatter(
                 "x", "y", source=ColumnDataSource(matched),
                 size="pt_size", color="color", alpha=0.85,
@@ -80,7 +80,6 @@ class Visualizer:
                 ("Δy", "@delta_y{0.000}"), ("func", "@ideal_func"),
             ]))
 
-        # unmatched points
         unmatched = self.mapping[self.mapping["ideal_func"] == ""]
         if not unmatched.empty:
             p.scatter(

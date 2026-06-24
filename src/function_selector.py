@@ -2,6 +2,7 @@ import math
 import pandas as pd
 from exceptions import NoIdealFunctionError
 
+# threshold multiplier from the assignment spec
 SQRT2 = math.sqrt(2)
 
 
@@ -13,7 +14,7 @@ class IdealFunctionSelector:
         self.max_deviations = {}
 
     def select(self):
-        # Rename columns before merging to avoid name collisions
+        # prefix columns before merging so t_y1 and i_y1 don't collide
         train = self.training_df.rename(
             columns={c: f"t_{c}" for c in self.training_df.columns if c != "x"}
         )
@@ -31,9 +32,9 @@ class IdealFunctionSelector:
                 diff = train_vals - merged[f"i_{icol}"]
                 sse = float((diff ** 2).sum())
                 if sse < best_sse:
-                    best_sse = sse
-                    best_col = icol
-                    best_max = float(diff.abs().max())
+                    best_sse  = sse
+                    best_col  = icol
+                    best_max  = float(diff.abs().max())
 
             if best_col is None:
                 raise NoIdealFunctionError(f"No ideal function found for {tcol}")
@@ -66,7 +67,7 @@ class TestMapper:
                 threshold = self.max_deviations[tcol] * SQRT2
                 if delta <= threshold and delta < best_delta:
                     best_delta = delta
-                    best_func = icol
+                    best_func  = icol
 
             rows.append({
                 "x": x,

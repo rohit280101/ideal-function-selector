@@ -17,48 +17,41 @@ def run(
     output_dir="output",
 ):
     print("=" * 55)
-    print("  Programming with Python — Written Assignment")
+    print("  Programming with Python - Written Assignment")
     print("=" * 55)
 
-    # Load data
-    print("\n[1/6] Loading datasets...")
+    print("\nLoading datasets...")
     train_df = TrainingDataLoader(train_path).load()
     ideal_df = IdealDataLoader(ideal_path).load()
     test_df  = TestDataLoader(test_path).load()
-    print(f"      train {train_df.shape}  ideal {ideal_df.shape}  test {test_df.shape}")
+    print(f"  train {train_df.shape}, ideal {ideal_df.shape}, test {test_df.shape}")
 
-    # Persist source tables
-    print("\n[2/6] Writing to database...")
+    print("\nSaving raw tables to database...")
     db = DatabaseManager(db_path)
     db.save_training(train_df)
     db.save_ideal(ideal_df)
-    print(f"      Saved → {db_path}")
+    print(f"  -> {db_path}")
 
-    # Select best-fit ideal functions
-    print("\n[3/6] Running least-squares selection...")
+    print("\nSelecting best-fit ideal functions (least squares)...")
     selector = IdealFunctionSelector(train_df, ideal_df)
     best_fits = selector.select()
     for tcol, icol in best_fits.items():
-        print(f"      {tcol} → {icol}  (max|dev| = {selector.max_deviations[tcol]:.4f})")
+        print(f"  {tcol} -> {icol}  (max deviation = {selector.max_deviations[tcol]:.4f})")
 
-    # Map test points
-    print("\n[4/6] Mapping test points...")
+    print("\nMapping test points...")
     mapper  = TestMapper(test_df, ideal_df, best_fits, selector.max_deviations)
     mapping = mapper.map_points()
-    matched = (mapping["ideal_func"] != "").sum()
-    print(f"      {matched}/{len(mapping)} points matched")
+    n_matched = (mapping["ideal_func"] != "").sum()
+    print(f"  {n_matched}/{len(mapping)} points matched")
 
-    # Persist mapping
-    print("\n[5/6] Saving test mapping...")
     db.save_mapping(mapping)
 
-    # Visualise
-    print("\n[6/6] Generating visualisations...")
+    print("\nGenerating plots...")
     viz = Visualizer(train_df, ideal_df, mapping, best_fits, output_dir)
-    print(f"      {viz.plot_training_vs_ideal()}")
-    print(f"      {viz.plot_test_mapping()}")
+    print(f"  {viz.plot_training_vs_ideal()}")
+    print(f"  {viz.plot_test_mapping()}")
 
-    print("\nDone.\n")
+    print("\nAll done.\n")
 
 
 if __name__ == "__main__":
